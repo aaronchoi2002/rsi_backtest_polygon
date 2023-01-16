@@ -1,1 +1,0 @@
-web: sh setup.sh && streamlit run RSI_backtest_polygon.py
