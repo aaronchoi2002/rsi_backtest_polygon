@@ -23,7 +23,6 @@ min_date =  date.today() - timedelta(365)
 max_date =  date.today()- timedelta(1)
 
 
-
 def drawndown(trade_result_log):
     max_return, list_drawn_down  = [100], []
     for index,row in trade_result_log.iterrows():
@@ -79,30 +78,17 @@ elif time_interval_select == "4小時":
     time_interval = 240 
 
 
-
 start_date_input = st.sidebar.date_input("開始日期（此版本最長為1年）", value=deflaut_date, min_value = min_date, max_value=max_date)
 rsi_length = st.sidebar.slider("RSI Length", min_value=1, max_value=30, value=14)
 
-# if st.sidebar.button('Get Data'):
+
 interval = int(time_interval)
 end_date = date.today()
-# end_date_display = date.today()
 start_date = start_date_input
 day_range = (end_date - start_date).days #datatime to days
 list_bars, bar = [],[]
-# end_date = date.today()
-# run_period = 360
-# if day_range <run_period:
 list_bars = get_data(ticker, end_date, day_range, interval =interval)
-# else:
-#     while day_range >run_period:
-#         bar = get_data(ticker, end_date, day_range = run_period, interval =interval)
-#         list_bars += bar
-#         day_range -= run_period
-#         end_date -= timedelta(days = run_period)
 
-    # bar = get_data(ticker, end_date, day_range, interval =interval)
-    # list_bars += bar
 
 df = pd.DataFrame(list_bars)
 df["datetime"] = pd.to_datetime(df["t"], unit="ms")
@@ -170,7 +156,7 @@ trade_result_log = pd.DataFrame({"open_date":list_open_date, "close_date":list_c
 
 rsi_result = pd.concat([df, trade_result_log ], axis = 1)
 
-#Calculate result static  
+#Calculate result statistics  
 
 
 conditions = [(trade_result_log["order_type"] == "buy"), (trade_result_log["order_type"] == "sell")]
@@ -201,9 +187,6 @@ if len(trade_result_log) > 0:
     best_trade = max(trade_result_log["trade_return"])*100
     worst_trade = min(trade_result_log["trade_return"])*100
     Longest_trade_holding = max((trade_result_log["close_date"] - trade_result_log.index)/np.timedelta64(1, 'D'))
-    # reward_ratio = sum(trade_result_log.loc[trade_result_log['trade_return'] > 0]["trade_return"])/len(trade_result_log[trade_result_log["trade_return"] >0])
-    # risk_ratio = sum(trade_result_log.loc[trade_result_log['trade_return'] < 0]["trade_return"])/len(trade_result_log[trade_result_log["trade_return"] <0])
-    # risk_reward_ratio = reward_ratio/(-risk_ratio)
 
     # Handle ZeroDivisionError for reward_ratio
     if len(trade_result_log[trade_result_log["trade_return"] > 0]) != 0:
@@ -224,7 +207,7 @@ if len(trade_result_log) > 0:
         risk_reward_ratio = 0
     max_dawndown = min(drawndown(trade_result_log))*100
 
-    tab1, tab2, tab3, tab4 = st.tabs(["統計資料", "圖表", "交易結果日誌", "信號日誌"])
+    tab1, tab2, tab3, tab4 = st.tabs(["統計資料", "股票圖表", "交易結果日誌", "信號日誌"])
 
 
     with tab1:
@@ -290,7 +273,7 @@ if len(trade_result_log) > 0:
                 vertical_spacing=0.03, subplot_titles=('OHLC', 'Volume'), 
                 row_width=[0.2, 0.7])
         
-        # fig_ticker = go.Figure()
+
         fig_ticker.add_trace(go.Candlestick(x=df.index, open=df["Open"], high=df["High"], low=df["Low"], close=df["Close"]) )    # Plot OHLC on 1st row
         fig_ticker.update_layout(xaxis_rangeslider_visible=False) # Do not show OHLC's rangeslider plot 
         st.plotly_chart(fig_ticker)   
@@ -302,7 +285,7 @@ if len(trade_result_log) > 0:
             x="close_date",
             y="accumulated_return")
         st.plotly_chart(fig) 
-        #st.dataframe(trade_result_log)        
+
     with tab3:
         st.dataframe(trade_result_log) 
     with tab4:
